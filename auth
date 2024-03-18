@@ -1,0 +1,1895 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "version": "latest",
+      "title": "Bon Dry Auth API (Supabase Auth)"
+    },
+    "servers": [
+      {
+        "url": "https://vgpbcxgyhpucsexojxpl.supabase.co/auth/v1",
+        "variables": {
+          "project": {
+            "description": "Your Supabase project ID.\n",
+            "default": "vgpbcxgyhpucsexojxpl"
+          }
+        }
+      },
+      {
+        "url": "https://vgpbcxgyhpucsexojxpl.supabase.co/rest/v1",
+        "variables": {
+          "project": {
+            "description": "Your Supabase project ID.\n",
+            "default": "vgpbcxgyhpucsexojxpl"
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "auth",
+        "description": "APIs for authentication and authorization."
+      },
+      {
+        "name": "user",
+        "description": "APIs used by a user to manage their account."
+      },
+      {
+        "name": "oauth",
+        "description": "APIs for dealing with OAuth flows."
+      },
+      {
+        "name": "oidc",
+        "description": "APIs for dealing with OIDC authentication flows. (Experimental.)"
+      },
+      {
+        "name": "sso",
+        "description": "APIs for authenticating using SSO providers (SAML). (Experimental.)"
+      }
+     
+    ],
+    "paths": {
+      "/token": {
+        "post": {
+          "summary": "Issues access and refresh tokens based on grant type.",
+          "tags": [
+            "auth",
+            "oidc"
+          ],
+          "parameters": [
+            {
+              "name": "grant_type",
+              "in": "query",
+              "required": true,
+              "description": "What grant type should be used to issue an access and refresh token. Note that `id_token` is only offered in experimental mode. CAPTCHA protection is not effective on the `refresh_token` grant flow.\n",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "password",
+                  "refresh_token",
+                  "id_token",
+                  "pkce"
+                ]
+              }
+            }
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "grant_type=password": {
+                    "value": {
+                      "email": "user@example.com",
+                      "password": "password1"
+                    }
+                  },
+                  "grant_type=refresh_token": {
+                    "value": {
+                      "refresh_token": "4nYUCw0wZR_DNOTSDbSGMQ"
+                    }
+                  },
+                  "grant_type=pkce": {
+                    "value": {
+                      "auth_code": "009e5066-fc11-4eca-8c8c-6fd82aa263f2",
+                      "code_verifier": "ktPNXpR65N6JtgzQA8_5HHtH6PBSAahMNoLKRzQEa0Tzgl.vdV~b6lPk004XOd.4lR0inCde.NoQx5K63xPfzL8o7tJAjXncnhw5Niv9ycQ.QRV9JG.y3VapqbgLfIrJ"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "description": "For the refresh token flow, supply only `refresh_token`.\nFor the email/phone with password flow, supply `email`, `phone` and `password` with an optional `gotrue_meta_security`.\nFor the OIDC ID token flow, supply `id_token`, `nonce`, `provider`, `client_id`, `issuer` with an optional `gotrue_meta_security`.",
+                  "properties": {
+                    "refresh_token": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone"
+                    },
+                    "id_token": {
+                      "type": "string"
+                    },
+                    "access_token": {
+                      "type": "string",
+                      "description": "Provide only when `grant_type` is `id_token` and the provided ID token requires the presence of an access token to be accepted (usually by having an `at_hash` claim)."
+                    },
+                    "nonce": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "google",
+                        "apple",
+                        "azure",
+                        "facebook",
+                        "keycloak"
+                      ]
+                    },
+                    "client_id": {
+                      "type": "string"
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "description": "If `provider` is `azure` then you can specify any Azure OIDC issuer string here, which will be used for verification."
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    },
+                    "auth_code": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code_verifier": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "An access and refresh token have been successfully issued.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AccessTokenResponseSchema"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "401": {
+              "$ref": "#/components/responses/ForbiddenResponse"
+            },
+            "403": {
+              "$ref": "#/components/responses/UnauthorizedResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            },
+            "500": {
+              "$ref": "#/components/responses/InternalServerErrorResponse"
+            }
+          }
+        }
+      },
+      "/logout": {
+        "post": {
+          "summary": "Logs out a user.",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "scope",
+              "in": "query",
+              "description": "(Optional.) Determines how the user should be logged out. When `global` is used, the user is logged out from all active sessions. When `local` is used, the user is logged out from the current session. When `others` is used, the user is logged out from all other sessions except the current one. Clients should remove stored access and refresh tokens except when `others` is used.\n",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "global",
+                  "local",
+                  "others"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No content returned on successful logout."
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedResponse"
+            }
+          }
+        }
+      },
+      "/verify": {
+        "get": {
+          "summary": "Authenticate by verifying the posession of a one-time token. Usually for use as clickable links.",
+          "tags": [
+            "auth"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "type",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "signup",
+                  "invite",
+                  "recovery",
+                  "magiclink",
+                  "email_change"
+                ]
+              }
+            },
+            {
+              "name": "redirect_to",
+              "in": "query",
+              "description": "(Optional) URL to redirect back into the app on after verification completes successfully. If not specified will use the \"Site URL\" configuration option. If not allowed per the allow list it will use the \"Site URL\" configuration option.\n",
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "responses": {
+            "302": {
+              "$ref": "#/components/responses/AccessRefreshTokenRedirectResponse"
+            }
+          }
+        },
+        "post": {
+          "summary": "Authenticate by verifying the posession of a one-time token.",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "signup",
+                        "recovery",
+                        "invite",
+                        "magiclink",
+                        "email_change",
+                        "sms",
+                        "phone_change"
+                      ]
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "token_hash": {
+                      "type": "string",
+                      "description": "The hashed value of token. Applicable only if used with `type` and nothing else.\n"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Applicable only if `type` is with regards to an email address.\n"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone",
+                      "description": "Applicable only if `type` is with regards to an phone number.\n"
+                    },
+                    "redirect_to": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "(Optional) URL to redirect back into the app on after verification completes successfully. If not specified will use the \"Site URL\" configuration option. If not allowed per the allow list it will use the \"Site URL\" configuration option.\n"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "An access and refresh token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AccessTokenResponseSchema"
+                  }
+                }
+              }
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/authorize": {
+        "get": {
+          "summary": "Redirects to an external OAuth provider. Usually for use as clickable links.",
+          "tags": [
+            "oauth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "provider",
+              "in": "query",
+              "description": "Name of the OAuth provider.",
+              "example": "google",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "[^a-zA-Z0-9]+"
+              }
+            },
+            {
+              "name": "scopes",
+              "in": "query",
+              "required": true,
+              "description": "Space separated list of OAuth scopes to pass on to `provider`.",
+              "schema": {
+                "type": "string",
+                "pattern": "[^ ]+( +[^ ]+)*"
+              }
+            },
+            {
+              "name": "invite_token",
+              "in": "query",
+              "description": "(Optional) A token representing a previous invitation of the user. A successful sign-in with OAuth will mark the invitation as completed.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "redirect_to",
+              "in": "query",
+              "description": "(Optional) URL to redirect back into the app on after OAuth sign-in completes successfully or not. If not specified will use the \"Site URL\" configuration option. If not allowed per the allow list it will use the \"Site URL\" configuration option.\n",
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            {
+              "name": "code_challenge_method",
+              "in": "query",
+              "description": "(Optional) Method used to encrypt the verifier. Can be `plain` (no transformation) or `s256` (where SHA-256 is used). It is always recommended that `s256` is used.",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "plain",
+                  "s256"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "302": {
+              "$ref": "#/components/responses/OAuthAuthorizeRedirectResponse"
+            }
+          }
+        }
+      },
+      "/signup": {
+        "post": {
+          "summary": "Signs a user up.",
+          "description": "Creates a new user.\n",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "email+password": {
+                    "value": {
+                      "email": "user@example.com",
+                      "password": "password1"
+                    }
+                  },
+                  "phone+password": {
+                    "value": {
+                      "phone": "+1234567890",
+                      "password": "password1"
+                    }
+                  },
+                  "phone+password+whatsapp": {
+                    "value": {
+                      "phone": "+1234567890",
+                      "password": "password1",
+                      "channel": "whatsapp"
+                    }
+                  },
+                  "email+password+pkce": {
+                    "value": {
+                      "email": "user@example.com",
+                      "password": "password1",
+                      "code_challenge_method": "s256",
+                      "code_challenge": "elU6u5zyqQT2f92GRQUq6PautAeNDf4DQPayyR0ek_c&"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone"
+                    },
+                    "channel": {
+                      "type": "string",
+                      "enum": [
+                        "sms",
+                        "whatsapp"
+                      ]
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object"
+                    },
+                    "code_challenge": {
+                      "type": "string"
+                    },
+                    "code_challenge_method": {
+                      "type": "string",
+                      "enum": [
+                        "plain",
+                        "s256"
+                      ]
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A user already exists and is not confirmed (in which case a user object is returned). A user did not exist and is signed up. If email or phone confirmation is enabled, returns a user object. If confirmation is disabled, returns an access token and refresh token response.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/AccessTokenResponseSchema"
+                      },
+                      {
+                        "$ref": "#/components/schemas/UserSchema"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/recover": {
+        "post": {
+          "summary": "Request password recovery.",
+          "description": "Users that have forgotten their password can have it reset with this API.\n",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "email"
+                  ],
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "code_challenge": {
+                      "type": "string"
+                    },
+                    "code_challenge_method": {
+                      "type": "string",
+                      "enum": [
+                        "plain",
+                        "s256"
+                      ]
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A recovery email has been sent to the address. An empty JSON object is returned. To obfuscate whether such an email address already exists in the system this response is sent regardless whether the address exists or not.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "422": {
+              "description": "Returned when unable to validate the email address.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorSchema"
+                  }
+                }
+              }
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/resend": {
+        "post": {
+          "summary": "Resends a one-time password (OTP) through email or SMS.",
+          "description": "Allows a user to resend an existing signup, sms, email_change or phone_change OTP.\n",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Applicable only if `type` is with regards to an email address.\n"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone",
+                      "description": "Applicable only if `type` is with regards to an phone number.\n"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "signup",
+                        "email_change",
+                        "sms",
+                        "phone_change"
+                      ]
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A One-Time Password was sent to the email or phone. To obfuscate whether such an address or number already exists in the system this response is sent in both cases.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message_id": {
+                        "type": "string",
+                        "description": "Unique ID of the message as reported by the SMS sending provider. Useful for tracking deliverability problems."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "422": {
+              "description": "Returned when unable to validate the email address or phone number.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorSchema"
+                  }
+                }
+              }
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/magiclink": {
+        "post": {
+          "summary": "Authenticate a user by sending them a magic link.",
+          "description": "A magic link is a special type of URL that includes a One-Time Password. When a user visits this link in a browser they are immediately authenticated.\n",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "email"
+                  ],
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "data": {
+                      "type": "object"
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A recovery email has been sent to the address. An empty JSON object is returned. To obfuscate whether such an email address already exists in the system this response is sent regardless whether the address exists or not.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "422": {
+              "description": "Returned when unable to validate the email address.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorSchema"
+                  }
+                }
+              }
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/otp": {
+        "post": {
+          "summary": "Authenticate a user by sending them a One-Time Password over email or SMS.",
+          "tags": [
+            "auth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone"
+                    },
+                    "channel": {
+                      "type": "string",
+                      "enum": [
+                        "sms",
+                        "whatsapp"
+                      ]
+                    },
+                    "create_user": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object"
+                    },
+                    "code_challenge_method": {
+                      "type": "string",
+                      "enum": [
+                        "s256",
+                        "plain"
+                      ]
+                    },
+                    "code_challenge": {
+                      "type": "string"
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A One-Time Password was sent to the email or phone. To obfuscate whether such an address or number already exists in the system this response is sent in both cases.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message_id": {
+                        "type": "string",
+                        "description": "Unique ID of the message as reported by the SMS sending provider. Useful for tracking deliverability problems."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "422": {
+              "description": "Returned when unable to validate the email or phone number.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorSchema"
+                  }
+                }
+              }
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/user": {
+        "get": {
+          "summary": "Fetch the latest user account information.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User's account information.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Update certain properties of the current user account.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "format": "phone"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "nonce": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object"
+                    },
+                    "app_metadata": {
+                      "type": "object"
+                    },
+                    "channel": {
+                      "type": "string",
+                      "enum": [
+                        "sms",
+                        "whatsapp"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User's updated account information.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/reauthenticate": {
+        "post": {
+          "summary": "Reauthenticates the possession of an email or phone number for the purpose of password change.",
+          "description": "For a password to be changed on a user account, the user's email or phone number needs to be confirmed before they are allowed to set a new password. This requirement is configurable. This API sends a confirmation email or SMS message. A nonce in this message can be provided in `PUT /user` to change the password on the account.\n",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A One-Time Password was sent to the user's email or phone.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/factors": {
+        "post": {
+          "summary": "Begin enrolling a new factor for MFA.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "factor_type"
+                  ],
+                  "properties": {
+                    "factor_type": {
+                      "type": "string",
+                      "enum": [
+                        "totp"
+                      ]
+                    },
+                    "friendly_name": {
+                      "type": "string"
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "A new factor was created in the unverified state. Call `POST /factors/{factorId}/verify' to verify it.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "totp"
+                        ]
+                      },
+                      "totp": {
+                        "type": "object",
+                        "properties": {
+                          "qr_code": {
+                            "type": "string"
+                          },
+                          "secret": {
+                            "type": "string"
+                          },
+                          "uri": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            }
+          }
+        }
+      },
+      "/factors/{factorId}/challenge": {
+        "post": {
+          "summary": "Create a new challenge for a MFA factor.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "factorId",
+              "in": "path",
+              "required": true,
+              "example": "2b306a77-21dc-4110-ba71-537cb56b9e98",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A new challenge was generated for the factor. Use `POST /factors/{factorId}/verify` to verify the challenge.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "14c1560e-2749-4522-bb62-d1458451830a",
+                        "description": "ID of the challenge."
+                      },
+                      "expires_at": {
+                        "type": "integer",
+                        "example": 1674840917,
+                        "description": "UNIX seconds of the timestamp past which the challenge should not be verified."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/factors/{factorId}/verify": {
+        "post": {
+          "summary": "Verify a challenge on a factor.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "factorId",
+              "in": "path",
+              "required": true,
+              "example": "2b306a77-21dc-4110-ba71-537cb56b9e98",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "challenge_id"
+                  ],
+                  "properties": {
+                    "challenge_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "This challenge has been verified. Client libraries should replace their stored access and refresh tokens with the ones provided in this response. These new credentials have an increased Authenticator Assurance Level (AAL).\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AccessTokenResponseSchema"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "429": {
+              "$ref": "#/components/responses/RateLimitResponse"
+            }
+          }
+        }
+      },
+      "/factors/{factorId}": {
+        "delete": {
+          "summary": "Remove a MFA factor from a user.",
+          "tags": [
+            "user"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": [],
+              "UserAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "factorId",
+              "in": "path",
+              "required": true,
+              "example": "2b306a77-21dc-4110-ba71-537cb56b9e98",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "This MFA factor is removed (unenrolled) and cannot be used for increasing the AAL level of user's sessions. Client libraries should use the `POST /token?grant_type=refresh_token` endpoint to get a new access and refresh token with a decreased AAL.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "2b306a77-21dc-4110-ba71-537cb56b9e98"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            }
+          }
+        }
+      },
+      "/callback": {
+        "get": {
+          "summary": "Redirects OAuth flow errors to the frontend app.",
+          "description": "When an OAuth sign-in flow fails for any reason, the error message needs to be delivered to the frontend app requesting the flow. This callback delivers the errors as `error` and `error_description` query params. Usually this request is not called directly.\n",
+          "tags": [
+            "oauth"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "responses": {
+            "302": {
+              "$ref": "#/components/responses/OAuthCallbackRedirectResponse"
+            }
+          }
+        },
+        "post": {
+          "summary": "Redirects OAuth flow errors to the frontend app.",
+          "description": "When an OAuth sign-in flow fails for any reason, the error message needs to be delivered to the frontend app requesting the flow. This callback delivers the errors as `error` and `error_description` query params. Usually this request is not called directly.\n",
+          "tags": [
+            "oauth"
+          ],
+          "responses": {
+            "302": {
+              "$ref": "#/components/responses/OAuthCallbackRedirectResponse"
+            }
+          }
+        }
+      },
+      "/sso": {
+        "post": {
+          "summary": "Initiate a Single-Sign On flow.",
+          "tags": [
+            "sso"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "domain": {
+                      "type": "string",
+                      "format": "hostname",
+                      "description": "Email address domain used to identify the SSO provider."
+                    },
+                    "provider_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "40451fc2-4997-429c-bf7f-cc6f33c788e6"
+                    },
+                    "redirect_to": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "skip_http_redirect": {
+                      "type": "boolean",
+                      "description": "Set to `true` if the response to this request should not be a HTTP 303 redirect -- useful for browser-based applications."
+                    },
+                    "code_challenge": {
+                      "type": "string"
+                    },
+                    "code_challenge_method": {
+                      "type": "string",
+                      "enum": [
+                        "plain",
+                        "s256"
+                      ]
+                    },
+                    "gotrue_meta_security": {
+                      "$ref": "#/components/schemas/GoTrueMetaSecurity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Returned only when `skip_http_redirect` is `true` and the SSO provider could be identified from the `provider_id` or `domain`. Client libraries should use the returned URL to redirect or open a browser.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "format": "uri"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "303": {
+              "description": "Returned only when `skip_http_redirect` is `false` or not present and the SSO provider could be identified from the `provider_id` or `domain`. Client libraries should follow the redirect. 303 is used instead of 302 because the request should be executed with a `GET` verb.\n",
+              "headers": {
+                "Location": {
+                  "schema": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequestResponse"
+            },
+            "404": {
+              "description": "Returned when the SSO provider could not be identified.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorSchema"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/health": {
+        "get": {
+          "summary": "Service healthcheck.",
+          "description": "Ping this endpoint to receive information about the health of the service.",
+          "tags": [
+            "general"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Service is healthy.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "version": {
+                        "type": "string",
+                        "example": "v2.40.1"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "GoTrue"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "GoTrue is a user registration and authentication API"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Service is not healthy. Retriable with exponential backoff.\n"
+            },
+            "502": {
+              "description": "Service is not healthy: infrastructure issue. Usually not retriable.\n"
+            },
+            "503": {
+              "description": "Service is not healthy: infrastrucutre issue. Retriable with exponential backoff.\n"
+            },
+            "504": {
+              "description": "Service is not healthy: request timed out. Retriable with exponential backoff.\n"
+            }
+          }
+        }
+      },
+      "/settings": {
+        "get": {
+          "summary": "Retrieve some of the public settings of the server.",
+          "description": "Use this endpoint to configure parts of any authentication UIs depending on the configured settings.\n",
+          "tags": [
+            "general"
+          ],
+          "security": [
+            {
+              "APIKeyAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Currently applicable settings of the server.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "disable_signup": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Whether new accounts can be created. (Valid for all providers.)"
+                      },
+                      "mailer_autoconfirm": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Whether new email addresses need to be confirmed before sign-in is possible."
+                      },
+                      "phone_autoconfirm": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Whether new phone numbers need to be confirmed before sign-in is possible."
+                      },
+                      "sms_provider": {
+                        "type": "string",
+                        "optional": true,
+                        "example": "twilio",
+                        "description": "Which SMS provider is being used to send messages to phone numbers."
+                      },
+                      "mfa_enabled": {
+                        "type": "boolean",
+                        "example": true,
+                        "description": "Whether MFA is enabled on this API server. Defaults to false."
+                      },
+                      "saml_enabled": {
+                        "type": "boolean",
+                        "example": true,
+                        "description": "Whether SAML is enabled on this API server. Defaults to false."
+                      },
+                      "external": {
+                        "type": "object",
+                        "description": "Which external identity providers are enabled.",
+                        "example": {
+                          "github": true,
+                          "apple": true,
+                          "email": true,
+                          "phone": true
+                        },
+                        "patternProperties": {
+                          "[a-zA-Z0-9]+": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "UserAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "description": "An access token in the form of a JWT issued by this server.\n"
+        },
+        "APIKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "apikey",
+          "description": "When deployed on Supabase, this server requires an `apikey` header containing a valid Supabase-issued API key to call any endpoint.\n"
+        }
+      },
+      "schemas": {
+        "GoTrueMetaSecurity": {
+          "type": "object",
+          "description": "Use this property to pass a CAPTCHA token only if you have enabled CAPTCHA protection.\n",
+          "properties": {
+            "captcha_token": {
+              "type": "string"
+            }
+          }
+        },
+        "ErrorSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Certain responses will contain this property with the provided values.\n\nUsually one of these:\n  - invalid_request\n  - unauthorized_client\n  - access_denied\n  - server_error\n  - temporarily_unavailable\n  - unsupported_otp_type"
+            },
+            "error_description": {
+              "type": "string",
+              "description": "Certain responses that have an `error` property may have this property which describes the error.\n"
+            },
+            "code": {
+              "type": "integer",
+              "description": "The HTTP status code. Usually missing if `error` is present.\n",
+              "example": 400
+            },
+            "msg": {
+              "type": "string",
+              "description": "A basic message describing the problem with the request. Usually missing if `error` is present.\n"
+            },
+            "weak_password": {
+              "type": "object",
+              "description": "Only returned on the `/signup` endpoint if the password used is too weak. Inspect the `reasons` and `msg` property to identify the causes.\n",
+              "properties": {
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "length",
+                      "characters",
+                      "pwned"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "UserSchema": {
+          "type": "object",
+          "description": "Object describing the user related to the issued access and refresh tokens.",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aud": {
+              "type": "string",
+              "deprecated": true
+            },
+            "role": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "description": "User's primary contact email. In most cases you can uniquely identify a user by their email address, but not in all cases."
+            },
+            "email_confirmed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "phone": {
+              "type": "string",
+              "format": "phone",
+              "description": "User's primary contact phone number. In most cases you can uniquely identify a user by their phone number, but not in all cases."
+            },
+            "phone_confirmed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "confirmation_sent_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "confirmed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "recovery_sent_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "new_email": {
+              "type": "string",
+              "format": "email"
+            },
+            "email_change_sent_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "new_phone": {
+              "type": "string",
+              "format": "phone"
+            },
+            "phone_change_sent_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "reauthentication_sent_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "last_sign_in_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "app_metadata": {
+              "type": "object"
+            },
+            "user_metadata": {
+              "type": "object"
+            },
+            "factors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MFAFactorSchema"
+              }
+            },
+            "identities": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "banned_until": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "deleted_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "SAMLAttributeMappingSchema": {
+          "type": "object",
+          "properties": {
+            "keys": {
+              "type": "object",
+              "patternProperties": {
+                ".+": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "names": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "default": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "SSOProviderSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "sso_domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "format": "hostname"
+                  }
+                }
+              }
+            },
+            "saml": {
+              "type": "object",
+              "properties": {
+                "entity_id": {
+                  "type": "string"
+                },
+                "metadata_xml": {
+                  "type": "string"
+                },
+                "metadata_url": {
+                  "type": "string"
+                },
+                "attribute_mapping": {
+                  "$ref": "#/components/schemas/SAMLAttributeMappingSchema"
+                }
+              }
+            }
+          }
+        },
+        "AccessTokenResponseSchema": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string",
+              "description": "A valid JWT that will expire in `expires_in` seconds."
+            },
+            "refresh_token": {
+              "type": "string",
+              "description": "An opaque string that can be used once to obtain a new access and refresh token."
+            },
+            "token_type": {
+              "type": "string",
+              "description": "What type of token this is. Only `bearer` returned, may change in the future."
+            },
+            "expires_in": {
+              "type": "integer",
+              "description": "Number of seconds after which the `access_token` should be renewed by using the refresh token with the `refresh_token` grant type."
+            },
+            "expires_at": {
+              "type": "integer",
+              "description": "UNIX timestamp after which the `access_token` should be renewed by using the refresh token with the `refresh_token` grant type."
+            },
+            "weak_password": {
+              "type": "object",
+              "description": "Only returned on the `/token?grant_type=password` endpoint. When present, it indicates that the password used is weak. Inspect the `reasons` and/or `message` properties to identify why.",
+              "properties": {
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "length",
+                      "characters",
+                      "pwned"
+                    ]
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "user": {
+              "$ref": "#/components/schemas/UserSchema"
+            }
+          }
+        },
+        "MFAFactorSchema": {
+          "type": "object",
+          "description": "Represents a MFA factor.",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "status": {
+              "type": "string",
+              "description": "Usually one of:\n- verified\n- unverified"
+            },
+            "friendly_name": {
+              "type": "string"
+            },
+            "factor_type": {
+              "type": "string",
+              "description": "Usually one of:\n- totp"
+            }
+          }
+        }
+      },
+      "responses": {
+        "OAuthCallbackRedirectResponse": {
+          "description": "HTTP Redirect to a URL containing the `error` and `error_description` query parameters which should be shown to the user requesting the OAuth sign-in flow.\n",
+          "headers": {
+            "Location": {
+              "description": "URL containing the `error` and `error_description` query parameters.\n",
+              "schema": {
+                "type": "string",
+                "format": "uri",
+                "example": "https://example.com/?error=server_error&error_description=User%20does%20not%20exist."
+              }
+            }
+          }
+        },
+        "OAuthAuthorizeRedirectResponse": {
+          "description": "HTTP Redirect to the OAuth identity provider's authorization URL.\n",
+          "headers": {
+            "Location": {
+              "description": "URL to which the user agent should redirect (or open in a browser for mobile apps).\n",
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        },
+        "RateLimitResponse": {
+          "description": "HTTP Too Many Requests response, when a rate limiter has been breached.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "integer",
+                    "example": 429
+                  },
+                  "msg": {
+                    "type": "string",
+                    "description": "A basic message describing the rate limit breach. Do not use as an error code identifier.",
+                    "example": "Too many requests. Please try again in a few seconds."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "BadRequestResponse": {
+          "description": "HTTP Bad Request response. Can occur if the passed in JSON cannot be unmarshalled properly or when CAPTCHA verification was not successful. In certain cases can also occur when features are disabled on the server (e.g. sign ups). It may also mean that the operation failed due to some constraint not being met (such a user already exists for example).\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorSchema"
+              }
+            }
+          }
+        },
+        "UnauthorizedResponse": {
+          "description": "HTTP Unauthorizred response.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorSchema"
+              }
+            }
+          }
+        },
+        "ForbiddenResponse": {
+          "description": "HTTP Forbidden response.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorSchema"
+              }
+            }
+          }
+        },
+        "InternalServerErrorResponse": {
+          "description": "HTTP Internal Server Error.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorSchema"
+              }
+            }
+          }
+        },
+        "AccessRefreshTokenRedirectResponse": {
+          "description": "HTTP See Other redirect response where `Location` is a specially formatted URL that includes an `access_token`, `refresh_token`, `expires_in` as URL query encoded values in the URL fragment (anything after `#`). These values are encoded in the fragment as this value is only visible to the browser handling the redirect and is not sent to the server.\n",
+          "headers": {
+            "Location": {
+              "schema": {
+                "type": "string",
+                "format": "uri",
+                "example": "https://example.com/#access_token=...&refresh_token=...&expires_in=..."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
