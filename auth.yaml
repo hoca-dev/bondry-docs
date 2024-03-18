@@ -1117,498 +1117,498 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorSchema"
 
-  /admin/audit:
-    get:
-      summary: Fetch audit log events.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            min: 1
-            default: 1
-        - name: per_page
-          in: query
-          schema:
-            type: integer
-            min: 1
-            default: 50
-      responses:
-        200:
-          description: List of audit logs.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      format: uuid
-                    payload:
-                      type: object
-                      properties:
-                        actor_id:
-                          type: string
-                        actor_via_sso:
-                          type: boolean
-                          description: Whether the actor used a SSO protocol (like SAML 2.0 or OIDC) to authenticate.
-                        actor_username:
-                          type: string
-                        actor_name:
-                          type: string
-                        traits:
-                          type: object
-                        action:
-                          type: string
-                          description: |-
-                            Usually one of these values:
-                            - login
-                            - logout
-                            - invite_accepted
-                            - user_signedup
-                            - user_invited
-                            - user_deleted
-                            - user_modified
-                            - user_recovery_requested
-                            - user_reauthenticate_requested
-                            - user_confirmation_requested
-                            - user_repeated_signup
-                            - user_updated_password
-                            - token_revoked
-                            - token_refreshed
-                            - generate_recovery_codes
-                            - factor_in_progress
-                            - factor_unenrolled
-                            - challenge_created
-                            - verification_attempted
-                            - factor_deleted
-                            - recovery_codes_deleted
-                            - factor_updated
-                            - mfa_code_login
-                        log_type:
-                          type: string
-                          description: |-
-                            Usually one of these values:
-                            - account
-                            - team
-                            - token
-                            - user
-                            - factor
-                            - recovery_codes
-                    created_at:
-                      type: string
-                      format: date-time
-                    ip_address:
-                      type: string
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
+  # /admin/audit:
+  #   get:
+  #     summary: Fetch audit log events.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     parameters:
+  #       - name: page
+  #         in: query
+  #         schema:
+  #           type: integer
+  #           min: 1
+  #           default: 1
+  #       - name: per_page
+  #         in: query
+  #         schema:
+  #           type: integer
+  #           min: 1
+  #           default: 50
+  #     responses:
+  #       200:
+  #         description: List of audit logs.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 type: object
+  #                 properties:
+  #                   id:
+  #                     type: string
+  #                     format: uuid
+  #                   payload:
+  #                     type: object
+  #                     properties:
+  #                       actor_id:
+  #                         type: string
+  #                       actor_via_sso:
+  #                         type: boolean
+  #                         description: Whether the actor used a SSO protocol (like SAML 2.0 or OIDC) to authenticate.
+  #                       actor_username:
+  #                         type: string
+  #                       actor_name:
+  #                         type: string
+  #                       traits:
+  #                         type: object
+  #                       action:
+  #                         type: string
+  #                         description: |-
+  #                           Usually one of these values:
+  #                           - login
+  #                           - logout
+  #                           - invite_accepted
+  #                           - user_signedup
+  #                           - user_invited
+  #                           - user_deleted
+  #                           - user_modified
+  #                           - user_recovery_requested
+  #                           - user_reauthenticate_requested
+  #                           - user_confirmation_requested
+  #                           - user_repeated_signup
+  #                           - user_updated_password
+  #                           - token_revoked
+  #                           - token_refreshed
+  #                           - generate_recovery_codes
+  #                           - factor_in_progress
+  #                           - factor_unenrolled
+  #                           - challenge_created
+  #                           - verification_attempted
+  #                           - factor_deleted
+  #                           - recovery_codes_deleted
+  #                           - factor_updated
+  #                           - mfa_code_login
+  #                       log_type:
+  #                         type: string
+  #                         description: |-
+  #                           Usually one of these values:
+  #                           - account
+  #                           - team
+  #                           - token
+  #                           - user
+  #                           - factor
+  #                           - recovery_codes
+  #                   created_at:
+  #                     type: string
+  #                     format: date-time
+  #                   ip_address:
+  #                     type: string
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
 
-  /admin/users:
-    get:
-      summary: Fetch a listing of users.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            min: 1
-            default: 1
-        - name: per_page
-          in: query
-          schema:
-            type: integer
-            min: 1
-            default: 50
-      responses:
-        200:
-          description: A page of users.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  aud:
-                    type: string
-                    deprecated: true
-                  users:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/UserSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
+  # /admin/users:
+  #   get:
+  #     summary: Fetch a listing of users.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     parameters:
+  #       - name: page
+  #         in: query
+  #         schema:
+  #           type: integer
+  #           min: 1
+  #           default: 1
+  #       - name: per_page
+  #         in: query
+  #         schema:
+  #           type: integer
+  #           min: 1
+  #           default: 50
+  #     responses:
+  #       200:
+  #         description: A page of users.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 aud:
+  #                   type: string
+  #                   deprecated: true
+  #                 users:
+  #                   type: array
+  #                   items:
+  #                     $ref: "#/components/schemas/UserSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
 
-  /admin/users/{userId}:
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      summary: Fetch user account data for a user.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: User's account data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
-    put:
-      summary: Update user's account data.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserSchema"
-      responses:
-        200:
-          description: User's account data was updated.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
-    delete:
-      summary: Delete a user.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: User's account data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
+  # /admin/users/{userId}:
+  #   parameters:
+  #     - name: userId
+  #       in: path
+  #       required: true
+  #       schema:
+  #         type: string
+  #         format: uuid
+  #   get:
+  #     summary: Fetch user account data for a user.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: User's account data.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/UserSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
+  #   put:
+  #     summary: Update user's account data.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: "#/components/schemas/UserSchema"
+  #     responses:
+  #       200:
+  #         description: User's account data was updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/UserSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
+  #   delete:
+  #     summary: Delete a user.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: User's account data.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/UserSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
 
-  /admin/users/{userId}/factors:
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      summary: List all of the MFA factors for a user.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: User's MFA factors.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MFAFactorSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
+  # /admin/users/{userId}/factors:
+  #   parameters:
+  #     - name: userId
+  #       in: path
+  #       required: true
+  #       schema:
+  #         type: string
+  #         format: uuid
+  #   get:
+  #     summary: List all of the MFA factors for a user.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: User's MFA factors.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: "#/components/schemas/MFAFactorSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
 
-  /admin/users/{userId}/factors/{factorId}:
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: factorId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    put:
-      summary: Update a user's MFA factor.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        200:
-          description: User's MFA factor.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MFAFactorSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user and/or factor.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
-    delete:
-      summary: Remove a user's MFA factor.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: User's MFA factor.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MFAFactorSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: There is no such user and/or factor.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
+  # /admin/users/{userId}/factors/{factorId}:
+  #   parameters:
+  #     - name: userId
+  #       in: path
+  #       required: true
+  #       schema:
+  #         type: string
+  #         format: uuid
+  #     - name: factorId
+  #       in: path
+  #       required: true
+  #       schema:
+  #         type: string
+  #         format: uuid
+  #   put:
+  #     summary: Update a user's MFA factor.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #     responses:
+  #       200:
+  #         description: User's MFA factor.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/MFAFactorSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user and/or factor.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
+  #   delete:
+  #     summary: Remove a user's MFA factor.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: User's MFA factor.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/MFAFactorSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: There is no such user and/or factor.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
 
-  /admin/sso/providers:
-    get:
-      summary: Fetch a list of all registered SSO providers.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: A list of all providers.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/SSOProviderSchema"
-    post:
-      summary: Register a new SSO provider.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - type
-              properties:
-                type:
-                  type: string
-                  enum:
-                    - saml
-                metadata_url:
-                  type: string
-                  format: uri
-                metadata_xml:
-                  type: string
-                domains:
-                  type: array
-                  items:
-                    type: string
-                    format: hostname
-                attribute_mapping:
-                  $ref: "#/components/schemas/SAMLAttributeMappingSchema"
-      responses:
-        200:
-          description: SSO provider was created.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SSOProviderSchema"
-        400:
-          $ref: "#/components/responses/BadRequestResponse"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
+  # /admin/sso/providers:
+  #   get:
+  #     summary: Fetch a list of all registered SSO providers.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: A list of all providers.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 items:
+  #                   type: array
+  #                   items:
+  #                     $ref: "#/components/schemas/SSOProviderSchema"
+  #   post:
+  #     summary: Register a new SSO provider.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             required:
+  #               - type
+  #             properties:
+  #               type:
+  #                 type: string
+  #                 enum:
+  #                   - saml
+  #               metadata_url:
+  #                 type: string
+  #                 format: uri
+  #               metadata_xml:
+  #                 type: string
+  #               domains:
+  #                 type: array
+  #                 items:
+  #                   type: string
+  #                   format: hostname
+  #               attribute_mapping:
+  #                 $ref: "#/components/schemas/SAMLAttributeMappingSchema"
+  #     responses:
+  #       200:
+  #         description: SSO provider was created.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/SSOProviderSchema"
+  #       400:
+  #         $ref: "#/components/responses/BadRequestResponse"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
 
-  /admin/sso/providers/{ssoProviderId}:
-    parameters:
-      - name: ssoProviderId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      summary: Fetch SSO provider details.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: SSO provider exists with these details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SSOProviderSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: A provider with this UUID does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
-    put:
-      summary: Update details about a SSO provider.
-      description: >
-        You can only update only one of `metadata_url` or `metadata_xml` at once. The SAML Metadata represented by these updates must advertize the same Identity Provider EntityID. Do not include the `domains` or `attribute_mapping` property to keep the existing database values.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                metadata_url:
-                  type: string
-                  format: uri
-                metadata_xml:
-                  type: string
-                domains:
-                  type: array
-                  items:
-                    type: string
-                    pattern: "[a-z0-9-]+([.][a-z0-9-]+)*"
-                attribute_mapping:
-                  $ref: "#/components/schemas/SAMLAttributeMappingSchema"
-      responses:
-        200:
-          description: SSO provider details were updated.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SSOProviderSchema"
-        400:
-          $ref: "#/components/responses/BadRequestResponse"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: A provider with this UUID does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
-    delete:
-      summary: Remove an SSO provider.
-      tags:
-        - admin
-      security:
-        - APIKeyAuth: []
-          AdminAuth: []
-      responses:
-        200:
-          description: SSO provider was removed.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SSOProviderSchema"
-        401:
-          $ref: "#/components/responses/UnauthorizedResponse"
-        403:
-          $ref: "#/components/responses/ForbiddenResponse"
-        404:
-          description: A provider with this UUID does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorSchema"
+  # /admin/sso/providers/{ssoProviderId}:
+  #   parameters:
+  #     - name: ssoProviderId
+  #       in: path
+  #       required: true
+  #       schema:
+  #         type: string
+  #         format: uuid
+  #   get:
+  #     summary: Fetch SSO provider details.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: SSO provider exists with these details.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/SSOProviderSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: A provider with this UUID does not exist.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
+  #   put:
+  #     summary: Update details about a SSO provider.
+  #     description: >
+  #       You can only update only one of `metadata_url` or `metadata_xml` at once. The SAML Metadata represented by these updates must advertize the same Identity Provider EntityID. Do not include the `domains` or `attribute_mapping` property to keep the existing database values.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               metadata_url:
+  #                 type: string
+  #                 format: uri
+  #               metadata_xml:
+  #                 type: string
+  #               domains:
+  #                 type: array
+  #                 items:
+  #                   type: string
+  #                   pattern: "[a-z0-9-]+([.][a-z0-9-]+)*"
+  #               attribute_mapping:
+  #                 $ref: "#/components/schemas/SAMLAttributeMappingSchema"
+  #     responses:
+  #       200:
+  #         description: SSO provider details were updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/SSOProviderSchema"
+  #       400:
+  #         $ref: "#/components/responses/BadRequestResponse"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: A provider with this UUID does not exist.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
+  #   delete:
+  #     summary: Remove an SSO provider.
+  #     tags:
+  #       - admin
+  #     security:
+  #       - APIKeyAuth: []
+  #         AdminAuth: []
+  #     responses:
+  #       200:
+  #         description: SSO provider was removed.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/SSOProviderSchema"
+  #       401:
+  #         $ref: "#/components/responses/UnauthorizedResponse"
+  #       403:
+  #         $ref: "#/components/responses/ForbiddenResponse"
+  #       404:
+  #         description: A provider with this UUID does not exist.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorSchema"
 
   /health:
     get:
